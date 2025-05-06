@@ -4,17 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.arbaelbarca.posfantastic.ui.presentation.ui.screen.TestScreen
-import com.arbaelbarca.posfantastic.ui.presentation.ui.screen.home.HomeFragment
-import com.arbaelbarca.posfantastic.ui.presentation.viewmodel.UsersViewModel
+import com.arbaelbarca.posfantastic.ui.presentation.navigation.HostNavigation
+import com.arbaelbarca.posfantastic.ui.presentation.ui.screen.home.HomeScreen
 import com.arbaelbarca.posfantastic.ui.theme.POSFantasticTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -32,7 +27,7 @@ class MainActivity : ComponentActivity() {
 //                        modifier = Modifier.padding(innerPadding)
 //                    )
 //                }
-                HomeFragment()
+                HostNavigation()
             }
         }
     }
