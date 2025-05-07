@@ -65,6 +65,7 @@ fun SuccesPaymentScreen(
         Column(
             modifier = Modifier.padding(paddingValues)
         ) {
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
