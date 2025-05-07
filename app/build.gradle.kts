@@ -67,7 +67,9 @@ dependencies {
     kapt(libs.hilt.compiler)
 
 
+    //image
     implementation(libs.coil.compose)
+    implementation(libs.coil.gif)      // untuk dukung GIF
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
@@ -78,4 +80,8 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
     implementation(libs.gson)
+
+    //lotties
+    implementation(libs.lottie.compose) // versi terbaru bisa dicek di repo
+
 }

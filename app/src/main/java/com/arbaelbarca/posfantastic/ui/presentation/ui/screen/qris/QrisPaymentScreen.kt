@@ -21,6 +21,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.arbaelbarca.posfantastic.R
+import com.arbaelbarca.posfantastic.ui.presentation.navigation.ObjectRouteScreen
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,7 +100,27 @@ fun QrisPaymentScreen(navController: NavController) {
                     fontSize = 20.sp
                 )
             )
-
         }
     }
+
+    NextPaymentSuccess(navController)
+}
+
+@Composable
+fun NextPaymentSuccess(navController: NavController) {
+    var isSuccess by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        delay(3000)
+        isSuccess = true
+    }
+
+    if (isSuccess)
+        navController.navigate(ObjectRouteScreen.SuccessPaymentScreenRoute.route) {
+            popUpTo(ObjectRouteScreen.HomeRoute.route) {
+                inclusive = false
+            }
+            launchSingleTop = true // cegah navigasi ulang jika sudah di atas
+            isSuccess = false
+        }
 }

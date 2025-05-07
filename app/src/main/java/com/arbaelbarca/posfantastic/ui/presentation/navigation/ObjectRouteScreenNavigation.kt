@@ -14,6 +14,7 @@ sealed class ObjectRouteScreen(
         title = "Home",
         defaultIcon = Icons.Filled.Home,
     )
+
     data object DetailProductScreenRoute : ObjectRouteScreen(
         route = "DetailProductScreen",
         title = "DetailProductScreen",
@@ -23,6 +24,13 @@ sealed class ObjectRouteScreen(
     data object QrisPaymentScreenRoute : ObjectRouteScreen(
         route = "QrisPaymentScreen",
         title = "QrisPaymentScreen",
+        defaultIcon = Icons.Filled.Home,
+    )
+
+
+    data object SuccessPaymentScreenRoute : ObjectRouteScreen(
+        route = "SuccessPaymentScreen",
+        title = "SuccessPaymentScreen",
         defaultIcon = Icons.Filled.Home,
     )
 }
