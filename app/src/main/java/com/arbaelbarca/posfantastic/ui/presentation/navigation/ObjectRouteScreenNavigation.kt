@@ -33,4 +33,10 @@ sealed class ObjectRouteScreen(
         title = "SuccessPaymentScreen",
         defaultIcon = Icons.Filled.Home,
     )
+
+    data object AddProductScreenRoute : ObjectRouteScreen(
+        route = "AddProductScreen",
+        title = "AddProductScreen",
+        defaultIcon = Icons.Filled.Home,
+    )
 }

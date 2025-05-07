@@ -1,5 +1,6 @@
 package com.arbaelbarca.posfantastic.ui.presentation.ui.screen.product
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -34,9 +35,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +52,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.arbaelbarca.posfantastic.R
 import com.arbaelbarca.posfantastic.ui.presentation.navigation.ObjectRouteScreen
+import com.arbaelbarca.posfantastic.ui.presentation.ui.screen.items.LoadingOverlay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,6 +81,10 @@ fun DetailProductScreen(navController: NavController) {
             )
         }
     ) { paddingValues ->
+
+        var isLoading = remember { mutableStateOf(false) }
+        var scopeFunciton = rememberCoroutineScope()
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -180,10 +192,13 @@ fun DetailProductScreen(navController: NavController) {
                         Text("12000", style = MaterialTheme.typography.bodyLarge)
                     }
 
-
                     Button(
                         onClick = {
-                            navController.navigate(ObjectRouteScreen.QrisPaymentScreenRoute.route)
+                            NextPageScreen(
+                                scopeFunciton,
+                                isLoading,
+                                navController
+                            )
                         },
                         modifier = Modifier
                             .padding(horizontal = 15.dp, vertical = 3.dp)
@@ -197,9 +212,24 @@ fun DetailProductScreen(navController: NavController) {
                 }
 
             }
+
+            LoadingOverlay(isLoading.value)
         }
     }
 
+}
+
+fun NextPageScreen(
+    scope: CoroutineScope,
+    isLoading: MutableState<Boolean>,
+    navController: NavController
+) {
+    scope.launch {
+        isLoading.value = true
+        delay(1500)
+        isLoading.value = false
+        navController.navigate(ObjectRouteScreen.QrisPaymentScreenRoute.route)
+    }
 }
 
 @Composable

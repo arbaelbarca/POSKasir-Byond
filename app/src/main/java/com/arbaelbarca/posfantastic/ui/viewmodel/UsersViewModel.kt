@@ -1,4 +1,4 @@
-package com.arbaelbarca.posfantastic.ui.presentation.viewmodel
+package com.arbaelbarca.posfantastic.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

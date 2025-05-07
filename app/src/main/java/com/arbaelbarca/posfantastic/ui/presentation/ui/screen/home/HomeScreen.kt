@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,10 +25,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -38,6 +37,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -49,7 +50,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -57,20 +57,30 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.arbaelbarca.posfantastic.R
+import com.arbaelbarca.posfantastic.ui.model.response.ProductResponseModel
 import com.arbaelbarca.posfantastic.ui.model.response.UsersResponse
 import com.arbaelbarca.posfantastic.ui.presentation.navigation.ObjectRouteScreen
+import com.arbaelbarca.posfantastic.ui.presentation.state.UiState
+import com.arbaelbarca.posfantastic.ui.presentation.ui.screen.items.LoadingOverlay
 import com.arbaelbarca.posfantastic.ui.presentation.ui.screen.items.ShimmerEffect
-import com.arbaelbarca.posfantastic.ui.presentation.viewmodel.UsersViewModel
+import com.arbaelbarca.posfantastic.ui.viewmodel.ProductViewModel
+import com.arbaelbarca.posfantastic.ui.viewmodel.UsersViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
     val userViewModel = hiltViewModel<UsersViewModel>()
+    val productViewModel = hiltViewModel<ProductViewModel>()
+    val stateProduct = productViewModel.stateProduct.collectAsState()
+
     val stateUsers = userViewModel.stateUsers.collectAsState()
     val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(true) }
+    var isLoadingAdd = remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = Color.White,
@@ -78,6 +88,22 @@ fun HomeScreen(navController: NavController) {
             TopAppBar(
                 title = { Text("Home") }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    addPageScreen(scope, isLoadingAdd, navController)
+                },
+                containerColor = Color(0xFF055494),
+                modifier = Modifier
+                    .padding(16.dp)
+            ) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Add",
+                    tint = Color.White
+                )
+            }
         }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
@@ -96,7 +122,6 @@ fun HomeScreen(navController: NavController) {
 //                }
 //            }
 
-
             SearchBarItems()
             CategoryListItems()
 
@@ -114,12 +139,53 @@ fun HomeScreen(navController: NavController) {
             )
 
         }
+
+        LoadingOverlay(isLoadingAdd.value)
     }
 
     // ✅ Trigger fetch once when Composable is first composed
-//    LaunchedEffect(Unit) {
+    LaunchedEffect(Unit) {
 //        userViewModel.fetchDataUsers()
-//    }
+        productViewModel.fetchDataProductList()
+    }
+
+    observerData(stateProduct)
+}
+
+@Composable
+fun observerData(stateProduct: State<UiState<List<ProductResponseModel>>>) {
+    initObserverProduct(stateProduct)
+}
+
+@Composable
+fun initObserverProduct(stateProduct: State<UiState<List<ProductResponseModel>>>) {
+    when (val uiState = stateProduct.value) {
+        is UiState.Error -> {
+
+        }
+
+        is UiState.Loading -> {
+
+        }
+
+        is UiState.Success -> {
+            val getDataUser = uiState.data
+            println("respon Data Product $getDataUser")
+        }
+    }
+}
+
+fun addPageScreen(
+    scope: CoroutineScope,
+    isLoading: MutableState<Boolean>,
+    navController: NavController
+) {
+    scope.launch {
+        isLoading.value = true
+        delay(1500)
+        isLoading.value = false
+        navController.navigate(ObjectRouteScreen.AddProductScreenRoute.route)
+    }
 }
 
 @Composable
