@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     kotlin("kapt")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -83,6 +84,15 @@ dependencies {
 
     //lotties
     implementation(libs.lottie.compose) // versi terbaru bisa dicek di repo
+
+    //material 3
+    implementation(libs.material3)
+    implementation(libs.androidx.material3.window.size.class1)
+    implementation(libs.androidx.material3.adaptive.navigation.suite)
+
+    //material icon
+    implementation(libs.androidx.material.icons.extended.v162)
+
 
     //permission cameragalery
     implementation(libs.accompanist.permissions) // versi terbaru
