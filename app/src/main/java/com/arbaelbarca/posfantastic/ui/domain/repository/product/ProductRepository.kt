@@ -1,6 +1,7 @@
 package com.arbaelbarca.posfantastic.ui.domain.repository.product
 
 import com.arbaelbarca.posfantastic.ui.model.request.AddProductRequest
+import com.arbaelbarca.posfantastic.ui.model.response.CategoriesResponseModel
 import com.arbaelbarca.posfantastic.ui.model.response.ProductResponseModel
 import com.arbaelbarca.posfantastic.ui.presentation.state.UiState
 import com.arbaelbarca.posfantastic.ui.remote.network.ApiService
@@ -26,7 +27,18 @@ class ProductRepository @Inject constructor(
     override suspend fun callAddProduct(addProductRequest: AddProductRequest): Flow<UiState<JSONObject>> = flow {
         emit(UiState.Loading)
         runCatching {
-            val getResponse = apiService.callApiAddProductList()
+            val getResponse = apiService.callApiAddProductList(addProductRequest)
+            emit(UiState.Success(getResponse))
+        }.onFailure {
+            emit(UiState.Error(it))
+            it.printStackTrace()
+        }
+    }
+
+    override suspend fun callCategoriesList(): Flow<UiState<List<CategoriesResponseModel>>> = flow {
+        emit(UiState.Loading)
+        runCatching {
+            val getResponse = apiService.callApiCategoryList()
             emit(UiState.Success(getResponse))
         }.onFailure {
             emit(UiState.Error(it))

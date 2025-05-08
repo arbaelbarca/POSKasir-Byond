@@ -1,6 +1,7 @@
 package com.arbaelbarca.posfantastic.ui.presentation.ui.screen.product
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -20,6 +21,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -36,6 +39,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
@@ -55,12 +59,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.arbaelbarca.posfantastic.ui.model.request.AddProductRequest
+import com.arbaelbarca.posfantastic.ui.model.response.CategoriesResponseModel
 import com.arbaelbarca.posfantastic.ui.model.response.ProductResponseModel
 import com.arbaelbarca.posfantastic.ui.presentation.state.UiState
 import com.arbaelbarca.posfantastic.ui.presentation.ui.screen.home.initObserverProduct
@@ -88,15 +97,15 @@ fun AddProductScreen(
     val background = Color(0xFFF6F7FB)
 
     val namaProduk = remember { mutableStateOf("") }
-    val jumlahProduk = remember { mutableStateOf("") }
-    val totalHarga = remember { mutableStateOf("") }
-    val hargaJual = remember { mutableStateOf("") }
+    val jumlahProduk = remember { mutableStateOf("0") }
+    val totalHarga = remember { mutableStateOf("0") }
+    val hargaJual = remember { mutableStateOf("0") }
 
     val kategoriList = listOf("Elektronik", "Pakaian", "Makanan")
     val jenisList = listOf("Retail", "Grosir")
 
-    var selectedKategori by remember { mutableStateOf("") }
-    var selectedJenis by remember { mutableStateOf("") }
+    var selectedKategori = remember { mutableStateOf("") }
+    var selectedJenis = remember { mutableStateOf("") }
 
     var kategoriExpanded by remember { mutableStateOf(false) }
     var jenisExpanded by remember { mutableStateOf(false) }
@@ -104,11 +113,11 @@ fun AddProductScreen(
     var isShowPickerDialog by remember { mutableStateOf(false) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
 
-    val productViewModel = hiltViewModel<ProductViewModel>()
-    val stateAddProduct = productViewModel.stateAddProduct.collectAsState()
 
     val isLoadingAdd = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+
+    val isShowCategories = remember { mutableStateOf(false) }
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
@@ -116,6 +125,9 @@ fun AddProductScreen(
         }
     }
 
+    val productViewModel = hiltViewModel<ProductViewModel>()
+    val stateAddProduct = productViewModel.stateAddProduct.collectAsState()
+    val stateCategoriesList = productViewModel.stateCategories.collectAsState()
 
 
     Column(
@@ -137,6 +149,7 @@ fun AddProductScreen(
                     .border(1.dp, purpleBlue, RoundedCornerShape(12.dp))
                     .padding(8.dp)
                     .clickable {
+                        isLoadingAdd.value = false
                         isShowPickerDialog = true
                     },
                 contentAlignment = Alignment.Center,
@@ -172,30 +185,33 @@ fun AddProductScreen(
             // Kategori Produk
             ExposedDropdownField(
                 label = "Kategori Produk",
-                expanded = kategoriExpanded,
+                items = kategoriList,
                 selectedValue = selectedKategori,
-                onExpandChange = { kategoriExpanded = it },
-                onValueChange = {
-                    selectedKategori = it
-                    kategoriExpanded = false
-                },
-                items = kategoriList
+                onClick = {
+                    isLoadingAdd.value = true
+                    productViewModel.fetchCategoriesList()
+                }
             )
 
-            // Jenis Produk
-            ExposedDropdownField(
-                label = "Jenis Produk",
-                expanded = jenisExpanded,
-                selectedValue = selectedJenis,
-                onExpandChange = { jenisExpanded = it },
-                onValueChange = {
-                    selectedJenis = it
-                    jenisExpanded = false
-                },
-                items = jenisList
-            )
+            if (isLoadingAdd.value){
+                LoadingOverlay(isLoadingAdd.value)
+            }
 
-            Spacer(modifier = Modifier.height(12.dp))
+//            // Jenis Produk
+//            ExposedDropdownField(
+//                label = "Jenis Produk",
+//                expanded = jenisExpanded,
+//                selectedValue = selectedJenis,
+//                onExpandChange = { jenisExpanded = it },
+//                onValueChange = {
+//                    selectedJenis = it
+//                    jenisExpanded = false
+//                },
+//                items = jenisList,
+//                isDisable = isDisable
+//            )
+//
+//            Spacer(modifier = Modifier.height(12.dp))
 
             // Harga Jual + AI button
             Row(
@@ -224,13 +240,14 @@ fun AddProductScreen(
             Button(
                 onClick = {
                     scope.launch {
+                        isLoadingAdd.value = true
                         val addProductRequest = AddProductRequest(
                             1,
                             "",
-                            totalHarga.toString().toDouble(),
-                            namaProduk.toString(),
-                            totalHarga.toString().toDouble(),
-                            jumlahProduk.toString().toInt()
+                            hargaJual.value.toDouble(),
+                            namaProduk.value,
+                            totalHarga.value.toDouble(),
+                            jumlahProduk.value.toInt()
                         )
 
                         productViewModel.fetchAddProduct(addProductRequest)
@@ -266,7 +283,54 @@ fun AddProductScreen(
         )
 
         LoadingOverlay(isLoadingAdd.value)
-        initObserverAddProduct(stateAddProduct, isLoading = isLoadingAdd)
+        initObserverAddProduct(
+            stateAddProduct,
+            isLoading = isLoadingAdd
+        )
+
+        initObserverCategories(
+            stateCategoriesList,
+            isLoading = isLoadingAdd,
+            isShowDialog = isShowCategories,
+            selectedKategori = selectedKategori
+        )
+    }
+}
+
+@Composable
+private fun initObserverCategories(
+    stateCategoriesList: State<UiState<List<CategoriesResponseModel>>>,
+    isLoading: MutableState<Boolean>,
+    isShowDialog: MutableState<Boolean>,
+    selectedKategori: MutableState<String>
+) {
+    when (val uiState = stateCategoriesList.value) {
+        is UiState.Error -> {
+            isLoading.value = false
+        }
+
+        is UiState.Loading -> {
+            isLoading.value = true
+        }
+
+        is UiState.Success -> {
+            isLoading.value = false
+            isShowDialog.value = true
+        }
+    }
+
+    if (isShowDialog.value) {
+        ShowDialogCategories(
+            title = "Pilih Kategori",
+            items = listOf("Elektronik", "Pakaian", "Makanan"),
+            onItemSelected = {
+                isShowDialog.value = false
+                selectedKategori.value = it
+            },
+            onDismissRequest = {
+                isShowDialog.value = false
+            }
+        )
     }
 }
 
@@ -314,17 +378,16 @@ fun CameraImagePicker(
 }
 
 
-fun addProductApi(
-    productViewModel: ProductViewModel,
-    addProductRequest: AddProductRequest
-) {
-}
-
 @Composable
 fun initObserverAddProduct(
     stateProduct: State<UiState<JSONObject>>,
     isLoading: MutableState<Boolean>
 ) {
+
+    val navController = rememberNavController()
+
+    val context = LocalContext.current
+
     when (val uiState = stateProduct.value) {
         is UiState.Error -> {
             isLoading.value = false
@@ -336,8 +399,12 @@ fun initObserverAddProduct(
 
         is UiState.Success -> {
             isLoading.value = false
-            val getDataUser = uiState.data
-            println("respon Data Product $getDataUser")
+
+            LaunchedEffect(Unit) {
+                Toast.makeText(context, "Success Add Product ", Toast.LENGTH_SHORT).show()
+                navController.popBackStack()
+            }
+
         }
     }
 }
@@ -470,43 +537,76 @@ fun OutlinedTextFieldWithClear(
 @Composable
 fun ExposedDropdownField(
     label: String,
-    expanded: Boolean,
-    selectedValue: String,
-    onExpandChange: (Boolean) -> Unit,
-    onValueChange: (String) -> Unit,
-    items: List<String>
+    selectedValue: MutableState<String>,
+    items: List<String>,
+    onClick: () -> Unit
 ) {
-    Box {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+    ) {
         OutlinedTextField(
-            value = selectedValue,
+            value = selectedValue.value,
             onValueChange = {},
             label = { Text(label, color = Color(0xFF3E4EB8)) },
             readOnly = true,
+            enabled = false,
             trailingIcon = {
                 Icon(
-                    if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    Icons.Default.KeyboardArrowDown,
                     contentDescription = null
                 )
             },
             modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onExpandChange(!expanded) },
+                .fillMaxWidth(),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = Color.White,
                 focusedBorderColor = Color(0xFF3E4EB8),
                 unfocusedBorderColor = Color.Gray
             )
         )
+    }
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { onExpandChange(false) }
+}
+
+@Composable
+fun ShowDialogCategories(
+    title: String,
+    items: List<String>,
+    onItemSelected: (String) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = Color.White,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
-            items.forEach {
-                DropdownMenuItem(
-                    text = { Text(it) },
-                    onClick = { onValueChange(it) }
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = title,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
+
+                LazyColumn {
+                    items(items) { item ->
+                        Text(
+                            text = item,
+                            fontSize = 16.sp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onItemSelected(item)
+                                }
+                                .padding(vertical = 12.dp)
+                        )
+                    }
+                }
             }
         }
     }
