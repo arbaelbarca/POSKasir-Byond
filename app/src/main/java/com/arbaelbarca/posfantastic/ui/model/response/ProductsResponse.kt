@@ -3,15 +3,15 @@ package com.arbaelbarca.posfantastic.ui.model.response
 
 import com.google.gson.annotations.SerializedName
 
-data class ProductResponseModel(
+data class ProductsResponse(
     @SerializedName("applicationStatus")
     val applicationStatus: String?,
     @SerializedName("data")
-    val dataList: List<Data?>?,
+    val dataList: List<ProductItem?>?,
     @SerializedName("status")
     val status: Int?
 ) {
-    data class Data(
+    data class ProductItem(
         @SerializedName("categoryName")
         val categoryName: String?,
         @SerializedName("createdAt")
@@ -27,6 +27,7 @@ data class ProductResponseModel(
         @SerializedName("stock")
         val stock: Int?,
         @SerializedName("updatedAt")
-        val updatedAt: String?
+        val updatedAt: String?,
+        var quantity: Int = 0
     )
 }

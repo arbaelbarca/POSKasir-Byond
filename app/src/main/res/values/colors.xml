@@ -7,4 +7,15 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="cornflower_blue_50">#F2F5FC</color>
+    <color name="cornflower_blue_100">#e1e9f8</color>
+    <color name="cornflower_blue_200">#cad8f3</color>
+    <color name="cornflower_blue_300">#a5c0eb</color>
+    <color name="cornflower_blue_400">#769cdf</color>
+    <color name="cornflower_blue_500">#5b7fd6</color>
+    <color name="cornflower_blue_600">#4665ca</color>
+    <color name="cornflower_blue_700">#3d52b8</color>
+    <color name="cornflower_blue_800">#374596</color>
+    <color name="cornflower_blue_900">#303d78</color>
+    <color name="cornflower_blue_950">#21274a</color>
 </resources>
