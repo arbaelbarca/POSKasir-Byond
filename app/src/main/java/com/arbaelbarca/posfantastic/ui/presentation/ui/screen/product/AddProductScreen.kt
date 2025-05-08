@@ -26,22 +26,20 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -70,16 +68,13 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.arbaelbarca.posfantastic.ui.model.request.AddProductRequest
 import com.arbaelbarca.posfantastic.ui.model.response.CategoriesResponseModel
-import com.arbaelbarca.posfantastic.ui.model.response.ProductResponseModel
 import com.arbaelbarca.posfantastic.ui.presentation.state.UiState
-import com.arbaelbarca.posfantastic.ui.presentation.ui.screen.home.initObserverProduct
 import com.arbaelbarca.posfantastic.ui.presentation.ui.screen.items.LoadingOverlay
 import com.arbaelbarca.posfantastic.ui.viewmodel.ProductViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.File
@@ -193,7 +188,7 @@ fun AddProductScreen(
                 }
             )
 
-            if (isLoadingAdd.value){
+            if (isLoadingAdd.value) {
                 LoadingOverlay(isLoadingAdd.value)
             }
 
@@ -497,9 +492,9 @@ fun SimpleTextField(
         label = { Text(label, color = Color(0xFF3E4EB8)) },
         modifier = modifier
             .fillMaxWidth(),
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            containerColor = Color.White,
+        colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color(0xFF3E4EB8),
+            focusedTextColor = Color.White,
             unfocusedBorderColor = Color.Gray
         )
     )
@@ -525,9 +520,9 @@ fun OutlinedTextFieldWithClear(
             }
         },
         modifier = Modifier.fillMaxWidth(),
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            containerColor = Color.White,
+        colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color(0xFF3E4EB8),
+            focusedTextColor = Color.White,
             unfocusedBorderColor = Color.Gray
         )
     )
@@ -560,9 +555,9 @@ fun ExposedDropdownField(
             },
             modifier = Modifier
                 .fillMaxWidth(),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = Color.White,
+            colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFF3E4EB8),
+                focusedTextColor = Color.White,
                 unfocusedBorderColor = Color.Gray
             )
         )

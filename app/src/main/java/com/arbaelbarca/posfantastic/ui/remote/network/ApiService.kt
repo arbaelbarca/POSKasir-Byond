@@ -2,7 +2,6 @@ package com.arbaelbarca.posfantastic.ui.remote.network
 
 import com.arbaelbarca.posfantastic.ui.model.request.AddProductRequest
 import com.arbaelbarca.posfantastic.ui.model.response.CategoriesResponseModel
-import com.arbaelbarca.posfantastic.ui.model.response.ProductResponseModel
 import com.arbaelbarca.posfantastic.ui.model.response.ProductsResponse
 import com.arbaelbarca.posfantastic.ui.model.response.UsersResponse
 import org.json.JSONObject
