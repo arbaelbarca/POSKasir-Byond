@@ -1,6 +1,9 @@
 package com.arbaelbarca.posfantastic.ui.presentation.ui.screen.home
 
 import android.annotation.SuppressLint
+import android.widget.AdapterView.OnItemSelectedListener
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,26 +18,42 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.AddCircle
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.RemoveCircle
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.contentColorFor
+import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -50,14 +69,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.arbaelbarca.posfantastic.R
-import com.arbaelbarca.posfantastic.ui.model.response.ProductResponseModel
+import com.arbaelbarca.posfantastic.ui.model.response.CategoryItem
+import com.arbaelbarca.posfantastic.ui.model.response.ProductsResponse
 import com.arbaelbarca.posfantastic.ui.model.response.UsersResponse
 import com.arbaelbarca.posfantastic.ui.presentation.navigation.ObjectRouteScreen
 import com.arbaelbarca.posfantastic.ui.presentation.state.UiState
@@ -81,32 +106,38 @@ fun HomeScreen(navController: NavController) {
     val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(true) }
     var isLoadingAdd = remember { mutableStateOf(false) }
+    val selectedProducts = remember{ mutableStateOf(mutableMapOf<Int, ProductsResponse.ProductItem>())}
 
     Scaffold(
-        containerColor = Color.White,
-        topBar = {
-            TopAppBar(
-                title = { Text("Home") }
-            )
-        },
+        containerColor = colorResource(R.color.cornflower_blue_50),
+        topBar = { TopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = colorResource(R.color.cornflower_blue_50)
+            ), title = { Text("Home") })
+                 }
+        ,
         floatingActionButton = {
-            FloatingActionButton(
+            AnimatedVisibility(visible = selectedProducts.value.isNotEmpty()) { FloatingActionButton(
                 onClick = {
                     addPageScreen(scope, isLoadingAdd, navController)
                 },
-                containerColor = Color(0xFF055494),
+                containerColor = colorResource(R.color.cornflower_blue_600),
                 modifier = Modifier
-                    .padding(16.dp)
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = "Add",
-                    tint = Color.White
-                )
-            }
-        }
-    ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
+                    .fillMaxWidth()
+                    .padding(start = 32.dp)
+        ) {
+            Text(
+                text = "Lanjutkan Pemesanan",
+                color = Color.White
+            )
+        }}
+    }) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
 //            when (val uiState = stateUsers.value) {
 //                is UiState.Error -> {
 //
@@ -123,7 +154,10 @@ fun HomeScreen(navController: NavController) {
 //            }
 
             SearchBarItems()
-            CategoryListItems()
+            CategoryListItems(
+                listOf(CategoryItem(1, "asjjdk"), CategoryItem(2, "asjjdk")), { category ->
+                    //todo viewmodel hit category
+                })
 
             LaunchedEffect(Unit) {
                 delay(3000)
@@ -133,10 +167,26 @@ fun HomeScreen(navController: NavController) {
             if (isLoading) {
                 ShimmerEffect()
             } else ProductListScreen(
-                onClickItem = {
-                    navController.navigate(ObjectRouteScreen.DetailProductScreenRoute.route)
-                }
-            )
+
+                listOf<ProductsResponse.ProductItem>(
+                    ProductsResponse.ProductItem(
+                        id = 1,
+                        name = "product 1",
+                        stock = 11,
+                        initialPrice = 1.11,
+                        sellingPrice = 11.1,
+                        categoryName = "category 2",
+                        createdAt = "2025-05-07T08:36:05.254704",
+                        updatedAt = "2025-05-07T08:36:05.254784"
+                    )
+                ),
+
+//                    navController.navigate(ObjectRouteScreen.DetailProductScreenRoute.route)
+
+                onClickItem = { product ->
+                    if (product.quantity > 0) selectedProducts.value[product.id!!] = product
+                    else selectedProducts.value.remove(product.id)
+                })
 
         }
 
@@ -153,12 +203,12 @@ fun HomeScreen(navController: NavController) {
 }
 
 @Composable
-fun observerData(stateProduct: State<UiState<List<ProductResponseModel>>>) {
+fun observerData(stateProduct: State<UiState<List<ProductsResponse>>>) {
     initObserverProduct(stateProduct)
 }
 
 @Composable
-fun initObserverProduct(stateProduct: State<UiState<List<ProductResponseModel>>>) {
+fun initObserverProduct(stateProduct: State<UiState<List<ProductsResponse>>>) {
     when (val uiState = stateProduct.value) {
         is UiState.Error -> {
 
@@ -176,9 +226,7 @@ fun initObserverProduct(stateProduct: State<UiState<List<ProductResponseModel>>>
 }
 
 fun addPageScreen(
-    scope: CoroutineScope,
-    isLoading: MutableState<Boolean>,
-    navController: NavController
+    scope: CoroutineScope, isLoading: MutableState<Boolean>, navController: NavController
 ) {
     scope.launch {
         isLoading.value = true
@@ -198,59 +246,61 @@ fun ShowListUsersScreen(listUserItem: List<UsersResponse.UsersResponseItem>) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBarItems(modifier: Modifier = Modifier) {
+    val searchBarState = rememberSearchBarState()
+    val textFieldState = rememberTextFieldState()
+    val scope = rememberCoroutineScope()
+    val inputField = @Composable {
+        SearchBarDefaults.InputField(
+            modifier = Modifier.fillMaxWidth(),
+            searchBarState = searchBarState,
+            textFieldState = textFieldState,
+            onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
+            placeholder = { Text("Search...") },
+            trailingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
+        )
+    }
     // Search bar
-    OutlinedTextField(
-        value = "",
-        onValueChange = {},
-        placeholder = { Text("Hinted search text") },
-        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .clip(RoundedCornerShape(24.dp))
-            .background(Color.White),
-        shape = RoundedCornerShape(24.dp)
+    SearchBar(
+        state = searchBarState,
+        inputField = inputField,
+        colors = SearchBarDefaults.colors(colorResource(R.color.white))
     )
 }
 
 @Composable
-fun CategoryListItems() {
-    val labels = listOf("Label", "Label", "Label", "Label", "Label", "Label")
+fun CategoryListItems(
+    categories: List<CategoryItem>, itemSelectedListener: (category: CategoryItem) -> Unit
+) {
     // Filter Chips
-    LazyRow(contentPadding = PaddingValues(horizontal = 12.dp)) {
-        items(labels) { label ->
-            val isSelected = label == labels.first()
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .background(
-                        if (isSelected) Color.Black else Color.White,
-                        RoundedCornerShape(16.dp)
-                    )
-                    .border(
-                        1.dp,
-                        if (isSelected) Color.Black else Color.Gray,
-                        RoundedCornerShape(16.dp)
-                    )
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                Text(
-                    text = label,
-                    color = if (isSelected) Color.White else Color.Black
+    var selectedId by remember { mutableStateOf<Long>(0) }
+
+    LazyRow(modifier = Modifier.padding(top = 16.dp)) {
+        items(categories) { category ->
+            AssistChip(
+                modifier = Modifier.padding(horizontal = 8.dp), onClick = {
+                    selectedId = category.id
+                    itemSelectedListener(category)
+                }, label = { Text(category.name) }, colors = AssistChipDefaults.assistChipColors(
+                    containerColor = if (selectedId == category.id) colorResource(id = R.color.cornflower_blue_600)
+                    else colorResource(id = R.color.white),
+                    labelColor = if (selectedId == category.id) colorResource(id = R.color.white)
+                    else Color.Black
+                ), border = BorderStroke(
+                    width = if (selectedId == category.id) 0.dp else 1.5.dp,
+                    color = Color.LightGray,
                 )
-            }
+            )
         }
     }
-
 }
 
 @Composable
 fun ProductListScreen(
-    onClickItem: () -> Unit
+    products: List<ProductsResponse.ProductItem>, onClickItem: (product : ProductsResponse.ProductItem) -> Unit
 ) {
-    val productList = List(10) { index -> index }
     val selectedCounts = remember { mutableStateMapOf<Int, Int>() }
 
     Column(
@@ -259,33 +309,27 @@ fun ProductListScreen(
             .background(Color(0xFFF5F4FA))
     ) {
 
-        Spacer(modifier = Modifier.height(8.dp))
+//        Spacer(modifier = Modifier.height(8.dp))
 
         // Product Grid
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            modifier = Modifier.padding(8.dp),
-            contentPadding = PaddingValues(4.dp)
+            modifier = Modifier.padding(top = 8.dp),
+            contentPadding = PaddingValues(),
         ) {
-            items(productList) { index ->
-                val count = selectedCounts[index] ?: 0
-                val isSelected = count > 0
+            items(products) { product ->
 
                 Card(
                     modifier = Modifier
                         .padding(8.dp)
-                        .border(
-                            width = if (isSelected) 2.dp else 0.dp,
-                            color = if (isSelected) Color(0xFF3B82F6) else Color.Transparent,
-                            shape = RoundedCornerShape(16.dp)
-                        )
                         .fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    onClick = onClickItem
-
+                    colors = CardDefaults.cardColors(colorResource(R.color.white)),
                 ) {
                     Column(
-                        modifier = Modifier.padding(8.dp),
+                        modifier = Modifier
+                            .padding()
+                            .fillMaxWidth(),
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         // Placeholder image
@@ -293,64 +337,87 @@ fun ProductListScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(170.dp)
-                                .background(Color.LightGray, RoundedCornerShape(8.dp))
+//                                .background(Color.LightGray, RoundedCornerShape(8.dp))
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.no_product_not_found),
-                                modifier = Modifier
-                                    .fillMaxSize(),
+                                modifier = Modifier.fillMaxSize(),
                                 contentDescription = null,
-                                alignment = Alignment.Center
+                                alignment = Alignment.Center,
+                                contentScale = ContentScale.Crop
                             )
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "Title maksimal 2 lines",
+                            modifier = Modifier.padding(10.dp),
+                            text = product.name ?: "",
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
                         )
 
-                        Text(text = "Rp 10.000", fontWeight = FontWeight.Bold)
+                        Text(
+                            modifier = Modifier.padding(10.dp),
+                            text = (product.sellingPrice ?: 0.0).toString(),
+                            fontWeight = FontWeight.Bold
+                        )
 
                         Spacer(modifier = Modifier.height(4.dp))
 
                         // Counter button
+
+                        var count by remember { mutableStateOf(0) }
+                        val visible = count > 0
+
                         Row(
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .align(Alignment.End),
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            if (isSelected) {
-                                IconButton(onClick = {
-                                    val current = selectedCounts[index] ?: 0
-                                    if (current > 1) {
-                                        selectedCounts[index] = current - 1
-                                    } else {
-                                        selectedCounts.remove(index)
+
+                            AnimatedVisibility(visible = visible) {
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ){
+                                    IconButton(
+                                        onClick = {
+                                            if (count > 0) count--
+                                            onClickItem.invoke(product.copy(quantity = count))
+                                                  },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Rounded.RemoveCircle,
+                                            contentDescription = "Minus",
+                                            tint = colorResource(R.color.cornflower_blue_100)
+                                        )
                                     }
-                                }) {
-                                    Image(
-                                        painter = painterResource(id = R.drawable.ic_minus),
-                                        modifier = Modifier.size(25.dp),
-                                        contentDescription = "remove"
+
+                                    Text(
+                                        text = "$count", fontSize = 14.sp
                                     )
                                 }
 
-                                Text(text = "$count")
+                            }
 
-                                IconButton(onClick = {
-                                    selectedCounts[index] = count + 1
+
+                            IconButton(
+                                modifier = Modifier
+                                    .width(32.dp)
+                                    .height(32.dp),
+                                onClick = {
+                                    count++
+                                    onClickItem.invoke(product.copy(quantity = count))
                                 }) {
-                                    Icon(Icons.Default.AddCircle, contentDescription = null)
-                                }
-                            } else {
-                                Spacer(modifier = Modifier.weight(1f))
-                                IconButton(onClick = {
-                                    selectedCounts[index] = 1
-                                }) {
-                                    Icon(Icons.Default.AddCircle, contentDescription = null)
-                                }
+                                Icon(
+                                    Icons.Rounded.AddCircle,
+                                    contentDescription = null,
+                                    tint = colorResource(R.color.cornflower_blue_600)
+                                )
                             }
                         }
                     }
