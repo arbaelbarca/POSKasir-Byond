@@ -50,6 +50,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -82,18 +83,19 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@SuppressLint("CoroutineCreationDuringComposition")
+@SuppressLint("CoroutineCreationDuringComposition", "MutableCollectionMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, productViewModel: ProductViewModel) {
     val userViewModel = hiltViewModel<UsersViewModel>()
-    val productViewModel = hiltViewModel<ProductViewModel>()
     val stateProduct = productViewModel.stateProduct.collectAsState()
 
     val stateUsers = userViewModel.stateUsers.collectAsState()
     val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(true) }
     var isLoadingAdd = remember { mutableStateOf(false) }
+    val selectedProducts = remember { mutableStateMapOf<Int, ProductsResponse.ProductItem>()}
+    val isCartNotEmpty by remember { derivedStateOf { selectedProducts.isNotEmpty() } }
     val selectedProducts = remember { mutableStateOf(mutableMapOf<Int, ProductsResponse.ProductItem>()) }
 
     Scaffold(
@@ -105,24 +107,22 @@ fun HomeScreen(navController: NavController) {
                 ), title = { Text("Home") })
         },
         floatingActionButton = {
-            AnimatedVisibility(visible = selectedProducts.value.isNotEmpty()) {
+            AnimatedVisibility(visible = isCartNotEmpty) {
                 FloatingActionButton(
-                    onClick = {
-                        addPageScreen(scope, isLoadingAdd, navController)
-                    },
-                    containerColor = colorResource(R.color.cornflower_blue_600),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 32.dp)
-                ) {
-                    Text(
-                        text = "Lanjutkan Pemesanan",
-                        color = Color.White
-                    )
-                }
-            }
-        }) { innerPadding ->
-
+                onClick = {
+                    navController.navigate(ObjectRouteScreen.DetailProductScreenRoute.route)
+                },
+                containerColor = colorResource(R.color.cornflower_blue_600),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 32.dp),
+        ) {
+            Text(
+                text = "Lanjutkan Pemesanan",
+                color = Color.White
+            )
+        }}
+    }) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -159,13 +159,12 @@ fun HomeScreen(navController: NavController) {
                 ),
 
                 onClickItem = { product ->
-                    if (product.quantity > 0) selectedProducts.value[product.id!!] = product
-                    else selectedProducts.value.remove(product.id)
+                    if (product.quantity > 0) selectedProducts[product.id!!] = product
+                    else selectedProducts.remove(product.id)
                 })
 
         }
 
-        FloatAddProduct()
         LoadingOverlay(isLoadingAdd.value)
     }
 
@@ -220,26 +219,6 @@ fun ShowListUsersScreen(listUserItem: List<UsersResponse.UsersResponseItem>) {
         }
     }
 }
-
-@Composable
-fun FloatAddProduct() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp) // jarak dari tepi layar
-    ) {
-        FloatingActionButton(
-            onClick = {
-
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-        ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "Tambah")
-        }
-    }
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
