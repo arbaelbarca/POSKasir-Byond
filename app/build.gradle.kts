@@ -84,4 +84,7 @@ dependencies {
     //lotties
     implementation(libs.lottie.compose) // versi terbaru bisa dicek di repo
 
+    //permission cameragalery
+    implementation(libs.accompanist.permissions) // versi terbaru
+
 }
