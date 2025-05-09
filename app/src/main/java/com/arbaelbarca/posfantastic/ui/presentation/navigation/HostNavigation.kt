@@ -27,6 +27,5 @@ fun HostNavigation() {
         }
         composable(ObjectRouteScreen.QrisPaymentScreenRoute.route) { QrisPaymentScreen(navController) }
         composable(ObjectRouteScreen.SuccessPaymentScreenRoute.route) { SuccesPaymentScreen(navController, onShareInvoice = {}, onPrintInvoice = {}) }
-//        composable(ObjectRouteScreen.AddProductScreenRoute.route) { AddProductScreen(navController, onBackClick = {}, onPredictClick = {}, onSaveClick = {}) }
     }
 }

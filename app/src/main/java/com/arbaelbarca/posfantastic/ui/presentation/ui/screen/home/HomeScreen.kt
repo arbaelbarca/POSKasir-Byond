@@ -96,7 +96,6 @@ fun HomeScreen(navController: NavController, productViewModel: ProductViewModel)
     var isLoadingAdd = remember { mutableStateOf(false) }
     val selectedProducts = remember { mutableStateMapOf<Int, ProductsResponse.ProductItem>()}
     val isCartNotEmpty by remember { derivedStateOf { selectedProducts.isNotEmpty() } }
-    val selectedProducts = remember { mutableStateOf(mutableMapOf<Int, ProductsResponse.ProductItem>()) }
 
     Scaffold(
         containerColor = colorResource(R.color.cornflower_blue_50),
