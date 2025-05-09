@@ -1,8 +1,8 @@
 package com.arbaelbarca.posfantastic.ui.di
 
-import com.arbaelbarca.posfantastic.ui.domain.repository.users.UsersIRepository
-import com.arbaelbarca.posfantastic.ui.domain.repository.users.UsersRepository
-import com.arbaelbarca.posfantastic.ui.remote.network.ApiService
+import com.arbaelbarca.posfantastic.data.remote.repository.users.UsersIRepository
+import com.arbaelbarca.posfantastic.data.remote.repository.users.UsersRepository
+import com.arbaelbarca.posfantastic.data.remote.network.ApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

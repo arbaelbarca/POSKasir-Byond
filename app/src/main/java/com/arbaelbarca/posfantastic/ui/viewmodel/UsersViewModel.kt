@@ -2,8 +2,8 @@ package com.arbaelbarca.posfantastic.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.arbaelbarca.posfantastic.ui.domain.repository.users.UsersIRepository
-import com.arbaelbarca.posfantastic.ui.model.response.UsersResponse
+import com.arbaelbarca.posfantastic.data.remote.repository.users.UsersIRepository
+import com.arbaelbarca.posfantastic.data.model.response.UsersResponse
 import com.arbaelbarca.posfantastic.ui.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

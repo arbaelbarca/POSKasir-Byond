@@ -1,7 +1,6 @@
 package com.arbaelbarca.posfantastic.ui.presentation.ui.screen.product
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,14 +50,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.arbaelbarca.posfantastic.R
-import com.arbaelbarca.posfantastic.ui.model.response.ProductsResponse
+import com.arbaelbarca.posfantastic.data.model.response.ProductsResponse
 import com.arbaelbarca.posfantastic.ui.presentation.navigation.ObjectRouteScreen
 import com.arbaelbarca.posfantastic.ui.presentation.ui.screen.items.LoadingOverlay
 import com.arbaelbarca.posfantastic.ui.viewmodel.ProductViewModel

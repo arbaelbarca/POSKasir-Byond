@@ -73,9 +73,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.arbaelbarca.posfantastic.R
-import com.arbaelbarca.posfantastic.ui.model.response.CategoryItem
-import com.arbaelbarca.posfantastic.ui.model.response.ProductsResponse
-import com.arbaelbarca.posfantastic.ui.model.response.UsersResponse
+import com.arbaelbarca.posfantastic.data.model.response.CategoryItem
+import com.arbaelbarca.posfantastic.data.model.response.ProductsResponse
+import com.arbaelbarca.posfantastic.data.model.response.UsersResponse
 import com.arbaelbarca.posfantastic.ui.presentation.navigation.ObjectRouteScreen
 import com.arbaelbarca.posfantastic.ui.presentation.state.UiState
 import com.arbaelbarca.posfantastic.ui.presentation.ui.screen.items.LoadingOverlay
@@ -164,12 +164,12 @@ fun HomeScreen(navController: NavController, productViewModel: ProductViewModel)
             } else {
                 val dummyProductList = List(10) { index ->
                     ProductsResponse.ProductItem(
-                        id = index + 1,
-                        name = "Product ${index + 1}",
-                        stock = 10 + index,
-                        initialPrice = 1.0 + index,
-                        sellingPrice = 10.0 + index,
-                        categoryName = "Category ${(index % 3) + 1}",
+                        id = 1,
+                        name = "product 1",
+                        stock = 11,
+                        initialPrice = 1.11,
+                        sellingPrice = 11.1,
+                        categoryName = "category 2",
                         createdAt = "2025-05-07T08:36:05.254704",
                         updatedAt = "2025-05-07T08:36:05.254784",
                         imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Pecel_Hariadhi.JPG/500px-Pecel_Hariadhi.JPG",
