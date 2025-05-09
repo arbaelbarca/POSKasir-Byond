@@ -1,4 +1,4 @@
-package com.arbaelbarca.posfantastic.ui.model.response
+package com.arbaelbarca.posfantastic.data.model.response
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize

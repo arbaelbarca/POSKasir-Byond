@@ -1,7 +1,7 @@
 package com.arbaelbarca.posfantastic.ui.di
 
-import com.arbaelbarca.posfantastic.ui.remote.network.ApiService
-import com.arbaelbarca.posfantastic.ui.remote.network.ApiURL
+import com.arbaelbarca.posfantastic.data.remote.network.ApiService
+import com.arbaelbarca.posfantastic.data.remote.network.ApiURL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

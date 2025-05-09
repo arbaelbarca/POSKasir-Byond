@@ -1,6 +1,3 @@
-package com.arbaelbarca.posfantastic.ui.model.response
-
-
 import com.google.gson.annotations.SerializedName
 
 data class CategoriesResponseModel(

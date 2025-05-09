@@ -1,9 +1,11 @@
-package com.arbaelbarca.posfantastic.ui.remote.network
+package com.arbaelbarca.posfantastic.data.remote.network
 
-import com.arbaelbarca.posfantastic.ui.model.request.AddProductRequest
-import com.arbaelbarca.posfantastic.ui.model.response.CategoriesResponseModel
-import com.arbaelbarca.posfantastic.ui.model.response.ProductsResponse
-import com.arbaelbarca.posfantastic.ui.model.response.UsersResponse
+import com.arbaelbarca.posfantastic.data.model.request.PredictPrice
+import com.arbaelbarca.posfantastic.data.model.response.PredictPriceResponse
+import com.arbaelbarca.posfantastic.data.model.response.ProductsResponse
+import com.arbaelbarca.posfantastic.data.model.response.UsersResponse
+import com.arbaelbarca.posfantastic.data.model.request.AddProductRequest
+import CategoriesResponseModel
 import org.json.JSONObject
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -20,6 +22,12 @@ interface ApiService {
     @GET("main-service/api/v1/products")
     suspend fun callApiProductList(
     ): List<ProductsResponse>
+
+    @Headers("User-ID: 1") //FOR TESTING
+    @POST("machine-learning-service/api/v1/optimal-price/predict")
+    suspend fun getPredictOptimalPrice(
+        @Body predictPriceResponse: PredictPrice
+    ): PredictPriceResponse
 
     @Headers("User-ID: 1")
     @POST("main-service/api/v1/products")
