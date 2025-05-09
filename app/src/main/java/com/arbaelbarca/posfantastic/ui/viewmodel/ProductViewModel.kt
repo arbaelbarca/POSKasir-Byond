@@ -2,13 +2,14 @@ package com.arbaelbarca.posfantastic.ui.viewmodel
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.State
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.arbaelbarca.posfantastic.ui.domain.repository.product.ProductRepository
-import com.arbaelbarca.posfantastic.ui.model.request.AddProductRequest
-import com.arbaelbarca.posfantastic.ui.model.response.CategoriesResponseModel
-import com.arbaelbarca.posfantastic.ui.model.response.ProductsResponse
+import com.arbaelbarca.posfantastic.data.model.request.AddProductRequest
+import CategoriesResponseModel
+import com.arbaelbarca.posfantastic.data.model.request.PredictPrice
+import com.arbaelbarca.posfantastic.data.model.response.PredictPriceResponse
+import com.arbaelbarca.posfantastic.data.remote.repository.product.ProductRepository
+import com.arbaelbarca.posfantastic.data.model.response.ProductsResponse
 import com.arbaelbarca.posfantastic.ui.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,19 +20,21 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProductViewModel @Inject constructor(
-    val productRepository: ProductRepository
+    private val productRepository: ProductRepository
 ) : ViewModel() {
 
-    val mutableStateProduct = MutableStateFlow<UiState<List<ProductsResponse>>>(UiState.Loading)
+    private val mutableStateProduct = MutableStateFlow<UiState<List<ProductsResponse>>>(UiState.Loading)
     val stateProduct: StateFlow<UiState<List<ProductsResponse>>> = mutableStateProduct
     private val _selectedProduct = mutableStateOf<List<ProductsResponse.ProductItem>>(listOf())
     val selectedProduct: MutableState<List<ProductsResponse.ProductItem>> = _selectedProduct
+    private val _predictPrice = MutableStateFlow<UiState<PredictPriceResponse>>(UiState.Loading)
+    val predictPrice = _predictPrice as StateFlow<UiState<PredictPriceResponse>>
 
-    val mutableStateAddProduct = MutableStateFlow<UiState<JSONObject>>(UiState.Loading)
+    private val mutableStateAddProduct = MutableStateFlow<UiState<JSONObject>>(UiState.Loading)
     val stateAddProduct: StateFlow<UiState<JSONObject>> = mutableStateAddProduct
 
 
-    val mutableStateCategories = MutableStateFlow<UiState<List<CategoriesResponseModel>>>(UiState.Loading)
+    private val mutableStateCategories = MutableStateFlow<UiState<List<CategoriesResponseModel>>>(UiState.Loading)
     val stateCategories: StateFlow<UiState<List<CategoriesResponseModel>>> = mutableStateCategories
 
     fun fetchDataProductList() {
@@ -60,6 +63,14 @@ class ProductViewModel @Inject constructor(
         viewModelScope.launch {
             productRepository.callCategoriesList().collect { state ->
                 mutableStateCategories.value = state
+            }
+        }
+    }
+
+    fun predictPrice(product: PredictPrice){
+         viewModelScope.launch {
+            productRepository.getPredictPrice(product).collect{ state ->
+                _predictPrice.value = state
             }
         }
     }

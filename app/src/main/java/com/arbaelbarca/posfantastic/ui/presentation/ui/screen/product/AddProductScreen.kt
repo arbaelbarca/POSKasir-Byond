@@ -39,8 +39,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -66,8 +64,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
-import com.arbaelbarca.posfantastic.ui.model.request.AddProductRequest
-import com.arbaelbarca.posfantastic.ui.model.response.CategoriesResponseModel
+import com.arbaelbarca.posfantastic.data.model.request.AddProductRequest
+import CategoriesResponseModel
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.input.KeyboardType
+import com.arbaelbarca.posfantastic.R
 import com.arbaelbarca.posfantastic.ui.presentation.state.UiState
 import com.arbaelbarca.posfantastic.ui.presentation.ui.screen.items.LoadingOverlay
 import com.arbaelbarca.posfantastic.ui.viewmodel.ProductViewModel
@@ -78,15 +80,17 @@ import com.google.accompanist.permissions.shouldShowRationale
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.File
+import com.arbaelbarca.posfantastic.data.model.request.PredictPrice
+import com.arbaelbarca.posfantastic.data.model.response.PredictPriceResponse
 
 @Composable
 fun AddProductScreen(
     navController: NavController,
     onBackClick: () -> Unit,
-    onPredictClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
-
+    val productViewModel = hiltViewModel<ProductViewModel>()
+    val stateProduct = productViewModel.predictPrice.collectAsState()
     val purpleBlue = Color(0xff2594b3)
     val textFieldBg = Color.White
     val background = Color(0xFFF6F7FB)
@@ -95,6 +99,7 @@ fun AddProductScreen(
     val jumlahProduk = remember { mutableStateOf("0") }
     val totalHarga = remember { mutableStateOf("0") }
     val hargaJual = remember { mutableStateOf("0") }
+    val hargaBeli = remember { mutableStateOf("0") }
 
     val kategoriList = listOf("Elektronik", "Pakaian", "Makanan")
     val jenisList = listOf("Retail", "Grosir")
@@ -104,6 +109,9 @@ fun AddProductScreen(
 
     var kategoriExpanded by remember { mutableStateOf(false) }
     var jenisExpanded by remember { mutableStateOf(false) }
+    var onPredictClick by remember { mutableStateOf(false) }
+    var predictPrice by remember { mutableStateOf(PredictPriceResponse()) }
+
 
     var isShowPickerDialog by remember { mutableStateOf(false) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
@@ -120,10 +128,8 @@ fun AddProductScreen(
         }
     }
 
-    val productViewModel = hiltViewModel<ProductViewModel>()
     val stateAddProduct = productViewModel.stateAddProduct.collectAsState()
     val stateCategoriesList = productViewModel.stateCategories.collectAsState()
-
 
     Column(
         modifier = Modifier
@@ -164,19 +170,53 @@ fun AddProductScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Nama Produk
-            OutlinedTextFieldWithClear(
-                label = "Nama Produk",
+            OutlinedTextField(
                 value = namaProduk.value,
                 onValueChange = { namaProduk.value = it },
-                onClear = { namaProduk.value = "" }
+                label = { Text("Nama Produk", color = colorResource(R.color.cornflower_blue_600)) },
+                placeholder = { Text("Masukkan Nama") },
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
             )
 
             // Jumlah Produk
-            SimpleTextField("Jumlah Produk", jumlahProduk.value) { jumlahProduk.value = it }
+            OutlinedTextField(
+                value = jumlahProduk.value.takeIf { it != "0"} ?: "",
+                onValueChange = { newValue ->
+                    // Hanya izinkan angka
+                    if (newValue.all { it.isDigit() }){
+                        jumlahProduk.value = newValue
+                    }
+                },
+                label = { Text("Jumlah Produk", color = colorResource(R.color.cornflower_blue_600)) },
+                placeholder = { Text("Masukkan jumlah") },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                ),
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
 
             // Total Harga Beli
-            SimpleTextField("Total Harga Beli", totalHarga.value) { totalHarga.value = it }
-
+            OutlinedTextField(
+                value = hargaBeli.value.takeIf { it != "0"} ?: "",
+                onValueChange = { newValue ->
+                    // Hanya izinkan angka
+                    if (newValue.all { it.isDigit() }){
+                        hargaBeli.value = newValue
+                    }
+                },
+                label = { Text("Harga Beli" , color = colorResource(R.color.cornflower_blue_600)) },
+                placeholder = { Text("Masukkan jumlah") },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                ),
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
             // Kategori Produk
             ExposedDropdownField(
                 label = "Kategori Produk",
@@ -213,21 +253,50 @@ fun AddProductScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                SimpleTextField(
-                    label = "Harga Jual",
-                    value = hargaJual.value,
-                    modifier = Modifier.weight(1f),
-                    onValueChange = { hargaJual.value = it }
+
+                OutlinedTextField(
+                    value = if (onPredictClick) predictPrice.optimalPrice.toString() else hargaJual.value.takeIf { it != "0" } ?: "",
+                    onValueChange = { newValue ->
+                        if (newValue.all { it.isDigit() }){
+                            jumlahProduk.value = newValue
+                        }
+                        isLoadingAdd.value = true
+                        onPredictClick = false
+                    },
+                    label = { Text("Harga Jual", color = colorResource(R.color.cornflower_blue_600)) },
+                    placeholder = { Text("Masukkan Harga") },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number
+                    ),
+                    singleLine = true,
+                    modifier = Modifier
+                        .weight(1f)
                 )
 
-                Button(
-                    onClick = onPredictClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = purpleBlue),
-                    shape = RoundedCornerShape(50)
-                ) {
-                    Text("Prediksi Harga Ai", color = Color.White)
-                }
+                LoadingOverlay(isLoadingAdd.value)
+
+            Button(
+                onClick = {
+                    productViewModel.predictPrice(
+                        PredictPrice(
+                        "Accessories", 247847.toDouble(), 60,"Seasonal"
+                    )
+                    )
+//                    LaunchedEffect(productViewModel.predictPrice) {
+                        if (productViewModel.predictPrice.value is UiState.Success) {
+                            isLoadingAdd.value = false
+                            onPredictClick = true
+                            predictPrice = (productViewModel.predictPrice.value as UiState.Success).data
+                        }
+
+//                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = purpleBlue),
+                shape = RoundedCornerShape(50)
+            ) {
+                Text("Prediksi Harga Ai", color = Color.White)
             }
+        }
 
             Spacer(modifier = Modifier.weight(1f))
 
@@ -277,18 +346,18 @@ fun AddProductScreen(
             }
         )
 
-        LoadingOverlay(isLoadingAdd.value)
-        initObserverAddProduct(
-            stateAddProduct,
-            isLoading = isLoadingAdd
-        )
+//        LoadingOverlay(isLoadingAdd.value)
+//        initObserverAddProduct(
+//            stateAddProduct,
+//            isLoading = isLoadingAdd
+//        )
 
-        initObserverCategories(
-            stateCategoriesList,
-            isLoading = isLoadingAdd,
-            isShowDialog = isShowCategories,
-            selectedKategori = selectedKategori
-        )
+//        initObserverCategories(
+//            stateCategoriesList,
+//            isLoading = isLoadingAdd,
+//            isShowDialog = isShowCategories,
+//            selectedKategori = selectedKategori
+//        )
     }
 }
 

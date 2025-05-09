@@ -1,4 +1,4 @@
-package com.arbaelbarca.posfantastic.ui.model.response
+package com.arbaelbarca.posfantastic.data.model.response
 
 
 import com.google.gson.annotations.SerializedName

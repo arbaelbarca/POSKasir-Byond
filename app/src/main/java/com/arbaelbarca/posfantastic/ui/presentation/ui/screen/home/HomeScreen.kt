@@ -73,9 +73,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.arbaelbarca.posfantastic.R
-import com.arbaelbarca.posfantastic.ui.model.response.CategoryItem
-import com.arbaelbarca.posfantastic.ui.model.response.ProductsResponse
-import com.arbaelbarca.posfantastic.ui.model.response.UsersResponse
+import com.arbaelbarca.posfantastic.data.model.response.CategoryItem
+import com.arbaelbarca.posfantastic.data.model.response.ProductsResponse
+import com.arbaelbarca.posfantastic.data.model.response.UsersResponse
 import com.arbaelbarca.posfantastic.ui.presentation.navigation.ObjectRouteScreen
 import com.arbaelbarca.posfantastic.ui.presentation.state.UiState
 import com.arbaelbarca.posfantastic.ui.presentation.ui.screen.items.LoadingOverlay
@@ -213,8 +213,7 @@ fun initObserverProduct(stateProduct: State<UiState<List<ProductsResponse>>>) {
         }
 
         is UiState.Success -> {
-            val getDataUser = uiState.data
-            println("respon Data Product $getDataUser")
+            uiState.data
         }
     }
 }

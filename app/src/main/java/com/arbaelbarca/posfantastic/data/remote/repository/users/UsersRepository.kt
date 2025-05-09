@@ -1,8 +1,8 @@
-package com.arbaelbarca.posfantastic.ui.domain.repository.users
+package com.arbaelbarca.posfantastic.data.remote.repository.users
 
-import com.arbaelbarca.posfantastic.ui.model.response.UsersResponse
+import com.arbaelbarca.posfantastic.data.model.response.UsersResponse
 import com.arbaelbarca.posfantastic.ui.presentation.state.UiState
-import com.arbaelbarca.posfantastic.ui.remote.network.ApiService
+import com.arbaelbarca.posfantastic.data.remote.network.ApiService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
