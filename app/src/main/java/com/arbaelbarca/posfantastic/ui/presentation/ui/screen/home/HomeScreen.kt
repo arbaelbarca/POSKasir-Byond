@@ -1,10 +1,12 @@
 package com.arbaelbarca.posfantastic.ui.presentation.ui.screen.home
 
 import android.annotation.SuppressLint
+import android.widget.AdapterView.OnItemSelectedListener
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -160,7 +162,7 @@ fun HomeScreen(navController: NavController, productViewModel: ProductViewModel)
                 ShimmerEffect()
             } else ProductListScreen(
 
-                listOf<ProductsResponse.ProductItem>(
+                listOf(
                     ProductsResponse.ProductItem(
                         id = 1,
                         name = "product 1",
@@ -291,7 +293,7 @@ fun CategoryListItems(
 
 @Composable
 fun ProductListScreen(
-    products: List<ProductsResponse.ProductItem>, onClickItem: (product: ProductsResponse.ProductItem) -> Unit
+    products: List<ProductsResponse.ProductItem>, onClickItem: (product : ProductsResponse.ProductItem) -> Unit
 ) {
     val selectedCounts = remember { mutableStateMapOf<Int, Int>() }
 
@@ -374,12 +376,12 @@ fun ProductListScreen(
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                                     verticalAlignment = Alignment.CenterVertically
-                                ) {
+                                ){
                                     IconButton(
                                         onClick = {
                                             if (count > 0) count--
                                             onClickItem.invoke(product.copy(quantity = count))
-                                        },
+                                                  },
                                         modifier = Modifier.size(32.dp)
                                     ) {
                                         Icon(
