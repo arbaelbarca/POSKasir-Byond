@@ -28,6 +28,8 @@ data class ProductsResponse(
         val stock: Int?,
         @SerializedName("updatedAt")
         val updatedAt: String?,
+        @SerializedName("imageUrl")
+        val imageUrl: String?,
         var quantity: Int = 0
     )
 }

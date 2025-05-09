@@ -1,12 +1,10 @@
 package com.arbaelbarca.posfantastic.ui.presentation.ui.screen.home
 
 import android.annotation.SuppressLint
-import android.widget.AdapterView.OnItemSelectedListener
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,34 +23,27 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.AddBusiness
 import androidx.compose.material.icons.rounded.AddCircle
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.RemoveCircle
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -68,13 +59,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -114,7 +102,22 @@ fun HomeScreen(navController: NavController, productViewModel: ProductViewModel)
         topBar = { TopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = colorResource(R.color.cornflower_blue_50)
-            ), title = { Text("Home") })
+            ),
+            title = { Text("Home") },
+            actions = {
+                IconButton(
+                    onClick = {
+                        navController.navigate(ObjectRouteScreen.AddProductScreenRoute.route)
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.AddBusiness,
+                        tint = colorResource(R.color.cornflower_blue_600),
+                        contentDescription = "Add Product",
+                    )
+                }
+            }
+        )
                  }
         ,
         floatingActionButton = {
@@ -179,13 +182,16 @@ fun HomeScreen(navController: NavController, productViewModel: ProductViewModel)
                         sellingPrice = 11.1,
                         categoryName = "category 2",
                         createdAt = "2025-05-07T08:36:05.254704",
-                        updatedAt = "2025-05-07T08:36:05.254784"
+                        updatedAt = "2025-05-07T08:36:05.254784",
+                        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Pecel_Hariadhi.JPG/500px-Pecel_Hariadhi.JPG",
+                        quantity = 0
                     )
                 ),
 
                 onClickItem = { product ->
                     if (product.quantity > 0) selectedProducts[product.id!!] = product
                     else selectedProducts.remove(product.id)
+                    productViewModel.addSelectedProducts(selectedProducts.values.toList())
                 })
 
         }
