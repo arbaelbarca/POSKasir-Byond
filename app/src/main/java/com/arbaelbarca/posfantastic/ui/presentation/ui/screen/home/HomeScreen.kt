@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AddBusiness
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.RemoveCircle
@@ -99,12 +100,27 @@ fun HomeScreen(navController: NavController, productViewModel: ProductViewModel)
 
     Scaffold(
         containerColor = colorResource(R.color.cornflower_blue_50),
-        topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorResource(R.color.cornflower_blue_50)
-                ), title = { Text("Home") })
-        },
+        topBar = { TopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = colorResource(R.color.cornflower_blue_50)
+            ),
+            title = { Text("Home") },
+            actions = {
+                IconButton(
+                    onClick = {
+                        navController.navigate(ObjectRouteScreen.AddProductScreenRoute.route)
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.AddBusiness,
+                        tint = colorResource(R.color.cornflower_blue_600),
+                        contentDescription = "Add Product",
+                    )
+                }
+            }
+        )
+                 }
+        ,
         floatingActionButton = {
             AnimatedVisibility(visible = isCartNotEmpty) {
                 FloatingActionButton(
@@ -153,13 +169,16 @@ fun HomeScreen(navController: NavController, productViewModel: ProductViewModel)
                         sellingPrice = 11.1,
                         categoryName = "category 2",
                         createdAt = "2025-05-07T08:36:05.254704",
-                        updatedAt = "2025-05-07T08:36:05.254784"
+                        updatedAt = "2025-05-07T08:36:05.254784",
+                        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Pecel_Hariadhi.JPG/500px-Pecel_Hariadhi.JPG",
+                        quantity = 0
                     )
                 ),
 
                 onClickItem = { product ->
                     if (product.quantity > 0) selectedProducts[product.id!!] = product
                     else selectedProducts.remove(product.id)
+                    productViewModel.addSelectedProducts(selectedProducts.values.toList())
                 })
 
         }

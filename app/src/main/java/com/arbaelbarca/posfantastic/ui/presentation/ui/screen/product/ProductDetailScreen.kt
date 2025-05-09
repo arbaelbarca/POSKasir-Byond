@@ -1,10 +1,12 @@
 package com.arbaelbarca.posfantastic.ui.presentation.ui.screen.product
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,7 +15,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AddCircle
+import androidx.compose.material.icons.rounded.RemoveCircle
 //import androidx.compose.material.icons.Icons
 //import androidx.compose.material.icons.automirrored.filled.ArrowBack
 //import androidx.compose.material.icons.filled.Add
@@ -25,6 +32,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -39,16 +48,21 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.arbaelbarca.posfantastic.R
+import com.arbaelbarca.posfantastic.ui.model.response.ProductsResponse
 import com.arbaelbarca.posfantastic.ui.presentation.navigation.ObjectRouteScreen
 import com.arbaelbarca.posfantastic.ui.presentation.ui.screen.items.LoadingOverlay
 import com.arbaelbarca.posfantastic.ui.viewmodel.ProductViewModel
+import com.arbaelbarca.posfantastic.utils.RemoteImageLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -57,6 +71,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailProductScreen(navController: NavController, productViewModel: ProductViewModel) {
+    var subTotal = remember { mutableStateOf(0) }
     Scaffold(
         containerColor = Color.White,
         topBar = {
@@ -80,36 +95,30 @@ fun DetailProductScreen(navController: NavController, productViewModel: ProductV
 
         var isLoading = remember { mutableStateOf(false) }
         var scopeFunciton = rememberCoroutineScope()
+        val selectedProducts = productViewModel.selectedProduct.value
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFF6F5FA))
-                .padding(paddingValues),
+                .padding(paddingValues = PaddingValues(16.dp)),
             verticalArrangement = Arrangement.Top
         ) {
 
-            Column(
-                modifier = Modifier
-                    .padding(15.dp)
-                    .fillMaxWidth()
-            ) {
-                Spacer(Modifier.height(16.dp))
-
+            ProductList(selectedProducts)
                 // List of Products
-                repeat(3) {
-                    OrderItem(
-                        title = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                        price = "10.000",
-                        quantity = 2,
-                        onIncrease = {},
-                        onDecrease = {}
-                    )
-                    Spacer(Modifier.height(8.dp))
-                }
+//                repeat(3) {
+//                    OrderItem(
+//                        title = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+//                        price = "10.000",
+//                        quantity = 2,
+//                        onIncrease = {},
+//                        onDecrease = {}
+//                    )
+//                    Spacer(Modifier.height(8.dp))
+//                }
 
                 Spacer(Modifier.height(16.dp))
-
                 // Payment Detail
                 Text("Rincian Pembayaran", style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(8.dp))
@@ -167,11 +176,11 @@ fun DetailProductScreen(navController: NavController, productViewModel: ProductV
 
             // Total + Button
 
-            Box(
-                modifier = Modifier
-                    .background(color = Color.White)
-                    .weight(1f)
-            )
+//            Box(
+//                modifier = Modifier
+//                    .background(color = Color.White)
+//                    .weight(1f)
+//            )
 
             Box(
                 modifier = Modifier
@@ -213,7 +222,7 @@ fun DetailProductScreen(navController: NavController, productViewModel: ProductV
         }
     }
 
-}
+//}
 
 fun NextPageScreen(
     scope: CoroutineScope,
@@ -229,49 +238,88 @@ fun NextPageScreen(
 }
 
 @Composable
-fun OrderItem(title: String, price: String, quantity: Int, onIncrease: () -> Unit, onDecrease: () -> Unit) {
+fun OrderItem(product : ProductsResponse.ProductItem, onIncrease: (count: Int) -> Unit, onDecrease: (count: Int) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.White, RoundedCornerShape(8.dp))
-            .padding(8.dp),
+            .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             Modifier
                 .size(56.dp)
+                .clip(RoundedCornerShape(8.dp))
                 .background(Color.LightGray, RoundedCornerShape(8.dp))
         ) {
-
+            RemoteImageLoader(product.imageUrl, Modifier.fillMaxSize())
         }
 
         Spacer(Modifier.width(8.dp))
 
-        Column(Modifier.weight(1f)) {
+        Column(Modifier.weight(1f).align(Alignment.Top)) {
             Text(
-                text = title,
+                text = product.name!!,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
+                modifier = Modifier,
                 style = MaterialTheme.typography.bodyMedium
             )
-            Text(text = price, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+            Text(text = product.sellingPrice.toString(), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
         }
 
+        var count by remember { mutableStateOf(0) }
+        val visible = count > 0
+
         Row(
+            modifier = Modifier,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                modifier = Modifier.size(25.dp),
-                painter = painterResource(id = R.drawable.ic_minus),
-                contentDescription = "remove"
-            )
-            Spacer(
-                modifier = Modifier.padding(13.dp, 0.dp, 0.dp, 0.dp)
-            )
-            Text(quantity.toString())
-//            IconButton(onClick = onIncrease) {
-//                Icon(Icons.Default.AddCircle, contentDescription = "Add", tint = Color(0xFF435283))
-//            }
+
+            AnimatedVisibility(visible = visible) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    IconButton(
+                        onClick = {
+                            if (count > 0) count--
+                            onDecrease(count)
+//                            onClickItem.invoke(product.copy(quantity = count))
+                        },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            Icons.Rounded.RemoveCircle,
+                            contentDescription = "Minus",
+                            tint = colorResource(R.color.cornflower_blue_100)
+                        )
+                    }
+
+                    Text(
+                        text = "$count", fontSize = 14.sp
+                    )
+                }
+
+            }
+
+
+            IconButton(
+                modifier = Modifier
+                    .width(32.dp)
+                    .height(32.dp),
+                onClick = {
+                    count++
+                    onIncrease(count)
+//                    onClickItem.invoke(product.copy(quantity = count))
+                }) {
+                Icon(
+                    Icons.Rounded.AddCircle,
+                    contentDescription = null,
+                    tint = colorResource(R.color.cornflower_blue_600)
+                )
+            }
         }
     }
 }
@@ -284,5 +332,28 @@ fun RowItem(label: String, value: String) {
     ) {
         Text(label)
         Text(value)
+    }
+}
+
+@Composable
+fun ProductList(productList : List<ProductsResponse.ProductItem>) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        items(productList){ product ->
+            val quantity = remember { mutableStateOf(product.quantity) }
+            OrderItem(
+                product,
+                onIncrease = {
+                    quantity
+                },
+                onDecrease = {
+
+                }
+            )
+            Spacer(Modifier.height(8.dp))
+        }
     }
 }
