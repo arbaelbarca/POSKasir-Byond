@@ -97,49 +97,50 @@ fun HomeScreen(navController: NavController, productViewModel: ProductViewModel)
     val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(true) }
     var isLoadingAdd = remember { mutableStateOf(false) }
-    val selectedProducts = remember { mutableStateMapOf<Int, ProductsResponse.ProductItem>()}
+    val selectedProducts = remember { mutableStateMapOf<Int, ProductsResponse.ProductItem>() }
     val isCartNotEmpty by remember { derivedStateOf { selectedProducts.isNotEmpty() } }
 
     Scaffold(
         containerColor = colorResource(R.color.cornflower_blue_50),
-        topBar = { TopAppBar(
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = colorResource(R.color.cornflower_blue_50)
-            ),
-            title = { Text("Home") },
-            actions = {
-                IconButton(
-                    onClick = {
-                        navController.navigate(ObjectRouteScreen.AddProductScreenRoute.route)
-                    },
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.AddBusiness,
-                        tint = colorResource(R.color.cornflower_blue_600),
-                        contentDescription = "Add Product",
-                    )
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colorResource(R.color.cornflower_blue_50)
+                ),
+                title = { Text("Home") },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            navController.navigate(ObjectRouteScreen.AddProductScreenRoute.route)
+                        },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.AddBusiness,
+                            tint = colorResource(R.color.cornflower_blue_600),
+                            contentDescription = "Add Product",
+                        )
+                    }
                 }
-            }
-        )
-                 }
-        ,
+            )
+        },
         floatingActionButton = {
             AnimatedVisibility(visible = isCartNotEmpty) {
                 FloatingActionButton(
-                onClick = {
-                    navController.navigate(ObjectRouteScreen.DetailProductScreenRoute.route)
-                },
-                containerColor = colorResource(R.color.cornflower_blue_600),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 32.dp),
-        ) {
-            Text(
-                text = "Lanjutkan Pemesanan",
-                color = Color.White
-            )
-        }}
-    }) { innerPadding ->
+                    onClick = {
+                        navController.navigate(ObjectRouteScreen.DetailProductScreenRoute.route)
+                    },
+                    containerColor = colorResource(R.color.cornflower_blue_600),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 32.dp),
+                ) {
+                    Text(
+                        text = "Lanjutkan Pemesanan",
+                        color = Color.White
+                    )
+                }
+            }
+        }) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -160,28 +161,31 @@ fun HomeScreen(navController: NavController, productViewModel: ProductViewModel)
 
             if (isLoading) {
                 ShimmerEffect()
-            } else ProductListScreen(
-
-                listOf(
+            } else {
+                val dummyProductList = List(10) { index ->
                     ProductsResponse.ProductItem(
-                        id = 1,
-                        name = "product 1",
-                        stock = 11,
-                        initialPrice = 1.11,
-                        sellingPrice = 11.1,
-                        categoryName = "category 2",
+                        id = index + 1,
+                        name = "Product ${index + 1}",
+                        stock = 10 + index,
+                        initialPrice = 1.0 + index,
+                        sellingPrice = 10.0 + index,
+                        categoryName = "Category ${(index % 3) + 1}",
                         createdAt = "2025-05-07T08:36:05.254704",
                         updatedAt = "2025-05-07T08:36:05.254784",
                         imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Pecel_Hariadhi.JPG/500px-Pecel_Hariadhi.JPG",
                         quantity = 0
                     )
-                ),
+                }
 
-                onClickItem = { product ->
-                    if (product.quantity > 0) selectedProducts[product.id!!] = product
-                    else selectedProducts.remove(product.id)
-                    productViewModel.addSelectedProducts(selectedProducts.values.toList())
-                })
+                ProductListScreen(
+                    dummyProductList,
+                    onClickItem = { product ->
+                        if (product.quantity > 0) selectedProducts[product.id!!] = product
+                        else selectedProducts.remove(product.id)
+                        productViewModel.addSelectedProducts(selectedProducts.values.toList())
+                    })
+            }
+
 
         }
 
@@ -193,13 +197,9 @@ fun HomeScreen(navController: NavController, productViewModel: ProductViewModel)
         productViewModel.fetchDataProductList()
     }
 
-    observerData(stateProduct)
-}
-
-@Composable
-fun observerData(stateProduct: State<UiState<List<ProductsResponse>>>) {
     initObserverProduct(stateProduct)
 }
+
 
 @Composable
 fun initObserverProduct(stateProduct: State<UiState<List<ProductsResponse>>>) {
@@ -215,6 +215,7 @@ fun initObserverProduct(stateProduct: State<UiState<List<ProductsResponse>>>) {
         is UiState.Success -> {
             val getDataUser = uiState.data
             println("respon Data Product $getDataUser")
+
         }
     }
 }
@@ -293,7 +294,8 @@ fun CategoryListItems(
 
 @Composable
 fun ProductListScreen(
-    products: List<ProductsResponse.ProductItem>, onClickItem: (product : ProductsResponse.ProductItem) -> Unit
+    products: List<ProductsResponse.ProductItem>,
+    onClickItem: (product: ProductsResponse.ProductItem) -> Unit
 ) {
     val selectedCounts = remember { mutableStateMapOf<Int, Int>() }
 
@@ -376,12 +378,12 @@ fun ProductListScreen(
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                                     verticalAlignment = Alignment.CenterVertically
-                                ){
+                                ) {
                                     IconButton(
                                         onClick = {
                                             if (count > 0) count--
                                             onClickItem.invoke(product.copy(quantity = count))
-                                                  },
+                                        },
                                         modifier = Modifier.size(32.dp)
                                     ) {
                                         Icon(
