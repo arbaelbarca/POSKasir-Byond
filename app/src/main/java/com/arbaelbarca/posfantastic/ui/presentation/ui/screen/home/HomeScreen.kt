@@ -150,7 +150,12 @@ fun HomeScreen(navController: NavController, productViewModel: ProductViewModel)
 
             SearchBarItems()
             CategoryListItems(
-                listOf(CategoryItem(1, "asjjdk"), CategoryItem(2, "asjjdk")), { category ->
+                listOf(
+                    CategoryItem(1, "Baju"),
+                    CategoryItem(2, "Pakaian Anak"),
+                    CategoryItem(3, "Pakaian Dewasa"),
+                    CategoryItem(4, "Adaptor"),
+                ), { category ->
                     //todo viewmodel hit category
                 })
 

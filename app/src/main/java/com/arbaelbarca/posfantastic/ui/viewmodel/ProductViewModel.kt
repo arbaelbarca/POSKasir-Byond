@@ -34,7 +34,6 @@ class ProductViewModel @Inject constructor(
     val stateAddProduct: StateFlow<UiState<JSONObject>> = mutableStateAddProduct
 
 
-    private val mutableStateCategories = MutableStateFlow<UiState<List<CategoriesResponseModel>>>(UiState.Loading)
     val mutableStateCategories = MutableStateFlow<UiState<List<CategoriesResponseModel>>>(UiState.Loading)
     val stateCategories: StateFlow<UiState<List<CategoriesResponseModel>>> = mutableStateCategories
 

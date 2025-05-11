@@ -70,157 +70,121 @@ import kotlinx.coroutines.launch
 @Composable
 fun DetailProductScreen(navController: NavController, productViewModel: ProductViewModel) {
     var subTotal = remember { mutableStateOf(0) }
+    var isLoading = remember { mutableStateOf(false) }
+    val scopeFunction = rememberCoroutineScope()
+    val selectedProducts = productViewModel.selectedProduct.value
+
     Scaffold(
         containerColor = Color.White,
         topBar = {
             TopAppBar(
                 title = { Text("Detail Product") },
-                navigationIcon = {
-//                    IconButton(
-//                        onClick = {
-//                            navController.popBackStack()
-//                        },
-//                    ) {
-//                        Icon(
-//                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-//                            contentDescription = "Back",
-//                        )
-//                    }
-                }
+                navigationIcon = { /* Add back icon if needed */ }
             )
+        },
+        bottomBar = {
+            Column(
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(15.dp)
+            ) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 15.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Total Pembayaran", style = MaterialTheme.typography.bodyLarge)
+                    Text("Rp 12.000", style = MaterialTheme.typography.bodyLarge)
+                }
+                Button(
+                    onClick = {
+                        NextPageScreen(
+                            scopeFunction,
+                            isLoading,
+                            navController
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF435283))
+                ) {
+                    Text("Lanjutkan Pembayaran", color = Color.White)
+                }
+            }
         }
     ) { paddingValues ->
-
-        var isLoading = remember { mutableStateOf(false) }
-        var scopeFunciton = rememberCoroutineScope()
-        val selectedProducts = productViewModel.selectedProduct.value
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFF6F5FA))
-                .padding(paddingValues = PaddingValues(16.dp)),
+                .padding(paddingValues)
+                .padding(16.dp),
             verticalArrangement = Arrangement.Top
         ) {
 
             ProductList(selectedProducts)
-                // List of Products
-//                repeat(3) {
-//                    OrderItem(
-//                        title = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-//                        price = "10.000",
-//                        quantity = 2,
-//                        onIncrease = {},
-//                        onDecrease = {}
-//                    )
-//                    Spacer(Modifier.height(8.dp))
-//                }
 
-                Spacer(Modifier.height(16.dp))
-                // Payment Detail
-                Text("Rincian Pembayaran", style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.height(8.dp))
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        RowItem(label = "Subtotal", value = "10000")
-                        RowItem(label = "Service Charge", value = "2000")
-                    }
-                }
+            Spacer(Modifier.height(16.dp))
 
-                Spacer(Modifier.height(16.dp))
-
-                // Payment Method
-                Text("Metode Pembayaran", style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.height(8.dp))
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    var selected by remember { mutableStateOf("Non Tunai") }
-
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            RadioButton(
-                                selected = selected == "Tunai",
-                                onClick = { selected = "Tunai" }
-                            )
-                            Text("Tunai")
-                        }
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            RadioButton(
-                                selected = selected == "Non Tunai",
-                                onClick = { selected = "Non Tunai" }
-                            )
-                            Text("Non Tunai")
-                        }
-                    }
-                }
-
-                Spacer(Modifier.height(16.dp))
-
-
-            }
-
-            // Total + Button
-
-//            Box(
-//                modifier = Modifier
-//                    .background(color = Color.White)
-//                    .weight(1f)
-//            )
-
-            Box(
-                modifier = Modifier
-                    .background(color = Color.White)
+            Text("Rincian Pembayaran", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(8.dp))
+            Card(
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Column() {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 25.dp, vertical = 25.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Total Pembayaran", style = MaterialTheme.typography.bodyLarge)
-                        Text("12000", style = MaterialTheme.typography.bodyLarge)
-                    }
-
-                    Button(
-                        onClick = {
-                            NextPageScreen(
-                                scopeFunciton,
-                                isLoading,
-                                navController
-                            )
-                        },
-                        modifier = Modifier
-                            .padding(horizontal = 15.dp, vertical = 3.dp)
-                            .fillMaxWidth()
-                            .height(48.dp),
-                        shape = RoundedCornerShape(24.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF435283))
-                    ) {
-                        Text("Lanjutkan Pembayaran", color = Color.White)
-                    }
+                Column(modifier = Modifier.padding(16.dp)) {
+                    RowItem(label = "Subtotal", value = "10000")
+                    RowItem(label = "Service Charge", value = "2000")
                 }
-
             }
 
-            LoadingOverlay(isLoading.value)
-        }
-    }
+            Spacer(Modifier.height(16.dp))
 
-//}
+            Text("Metode Pembayaran", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(8.dp))
+            Card(
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                var selected by remember { mutableStateOf("Non Tunai") }
+
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(
+                            selected = selected == "Tunai",
+                            onClick = { selected = "Tunai" }
+                        )
+                        Text("Tunai")
+                    }
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(
+                            selected = selected == "Non Tunai",
+                            onClick = { selected = "Non Tunai" }
+                        )
+                        Text("Non Tunai")
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+        }
+
+        LoadingOverlay(isLoading.value)
+    }
+}
+
 
 fun NextPageScreen(
     scope: CoroutineScope,
@@ -236,7 +200,7 @@ fun NextPageScreen(
 }
 
 @Composable
-fun OrderItem(product : ProductsResponse.ProductItem, onIncrease: (count: Int) -> Unit, onDecrease: (count: Int) -> Unit) {
+fun OrderItem(product: ProductsResponse.ProductItem, onIncrease: (count: Int) -> Unit, onDecrease: (count: Int) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -255,7 +219,10 @@ fun OrderItem(product : ProductsResponse.ProductItem, onIncrease: (count: Int) -
 
         Spacer(Modifier.width(8.dp))
 
-        Column(Modifier.weight(1f).align(Alignment.Top)) {
+        Column(
+            Modifier
+                .weight(1f)
+                .align(Alignment.Top)) {
             Text(
                 text = product.name!!,
                 maxLines = 2,
@@ -279,7 +246,7 @@ fun OrderItem(product : ProductsResponse.ProductItem, onIncrease: (count: Int) -
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically
-                ){
+                ) {
                     IconButton(
                         onClick = {
                             if (count > 0) count--
@@ -334,13 +301,13 @@ fun RowItem(label: String, value: String) {
 }
 
 @Composable
-fun ProductList(productList : List<ProductsResponse.ProductItem>) {
+fun ProductList(productList: List<ProductsResponse.ProductItem>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        items(productList){ product ->
+        items(productList) { product ->
             val quantity = remember { mutableStateOf(product.quantity) }
             OrderItem(
                 product,
